@@ -1,0 +1,22 @@
+# Global environment for zsh running from an SRD cryptex.
+#
+# CRYPTEX_MOUNT_PATH is supplied by the cryptex runtime (and propagated by
+# the cryptex-aware dropbear example in Apple's SRD repository).
+if [[ -n ${CRYPTEX_MOUNT_PATH:-} ]]; then
+	typeset -aU path fpath
+	path=(
+		"$CRYPTEX_MOUNT_PATH/usr/local/bin"
+		"$CRYPTEX_MOUNT_PATH/usr/bin"
+		"$CRYPTEX_MOUNT_PATH/bin"
+		$path
+	)
+	fpath=(
+		"$CRYPTEX_MOUNT_PATH/usr/share/zsh/5.9.2/functions"
+		"$CRYPTEX_MOUNT_PATH/usr/share/zsh/site-functions"
+		$fpath
+	)
+	if [[ -d "$CRYPTEX_MOUNT_PATH/usr/share/terminfo" ]]; then
+		export TERMINFO="$CRYPTEX_MOUNT_PATH/usr/share/terminfo"
+	fi
+	export PATH
+fi

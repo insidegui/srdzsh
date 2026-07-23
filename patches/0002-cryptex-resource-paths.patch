@@ -1,0 +1,54 @@
+diff --git a/Src/builtin.c b/Src/builtin.c
+--- a/Src/builtin.c
++++ b/Src/builtin.c
+@@ -5892 +5892 @@
+-		source(GLOBAL_ZLOGOUT);
++		sourceglobal(GLOBAL_ZLOGOUT);
+diff --git a/Src/init.c b/Src/init.c
+--- a/Src/init.c
++++ b/Src/init.c
+@@ -1328 +1328 @@
+-	source(GLOBAL_ZSHENV);
++	sourceglobal(GLOBAL_ZSHENV);
+@@ -1349 +1349 @@
+-		    source(GLOBAL_ZPROFILE);
++		    sourceglobal(GLOBAL_ZPROFILE);
+@@ -1357 +1357 @@
+-		source(GLOBAL_ZSHRC);
++		sourceglobal(GLOBAL_ZSHRC);
+@@ -1365 +1365 @@
+-		source(GLOBAL_ZLOGIN);
++		sourceglobal(GLOBAL_ZLOGIN);
+@@ -1551,10 +1551,32 @@ sourcehome(char *s)
+ 	VARARR(char, buf, strlen(h) + strlen(s) + 2);
+ 	sprintf(buf, "%s/%s", h, s);
+ 	unqueue_signals();
+ 	source(buf);
+     }
+ }
++
++/*
++ * Custom SRD cryptexes are mounted below a randomized directory rather than
++ * at the root paths configured at build time.  launchd exposes that directory
++ * as CRYPTEX_MOUNT_PATH.  Prefix only compiled global resource paths; user
++ * startup files continue to come from HOME/ZDOTDIR.
++ */
++
++/**/
++mod_export void
++sourceglobal(char *s)
++{
++    char *mount = zgetenv("CRYPTEX_MOUNT_PATH");
++
++    if (mount && *mount && *s == '/') {
++	VARARR(char, buf, strlen(mount) + strlen(s) + 1);
++	sprintf(buf, "%s%s", mount, s);
++	source(buf);
++    } else {
++	source(s);
++    }
++}
+ 
+ /**/
+ void
+ init_bltinmods(void)

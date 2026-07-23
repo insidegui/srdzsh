@@ -1,0 +1,12 @@
+# Runtime configure checks cannot execute while cross-compiling.  These
+# answers match Darwin/iOS arm64 and were also checked against native Darwin.
+zsh_cv_long_is_64_bit=${zsh_cv_long_is_64_bit=yes}
+zsh_cv_printf_has_lld=${zsh_cv_printf_has_lld=yes}
+ac_cv_func_mmap_fixed_mapped=${ac_cv_func_mmap_fixed_mapped=yes}
+ac_cv_func_strcoll_works=${ac_cv_func_strcoll_works=yes}
+zsh_cv_func_realpath_accepts_null=${zsh_cv_func_realpath_accepts_null=yes}
+zsh_cv_func_tgetent_accepts_null=${zsh_cv_func_tgetent_accepts_null=yes}
+zsh_cv_func_tgetent_zero_success=${zsh_cv_func_tgetent_zero_success=no}
+zsh_cv_rlim_t_is_longer=${zsh_cv_rlim_t_is_longer=no}
+zsh_cv_type_rlim_t_is_unsigned=${zsh_cv_type_rlim_t_is_unsigned=yes}
+zsh_cv_getcwd_malloc=${zsh_cv_getcwd_malloc=yes}
