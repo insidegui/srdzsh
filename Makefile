@@ -12,7 +12,7 @@ SDK ?= iphoneos
 HOST_TRIPLE ?= arm64e-apple-darwin
 JOBS ?= $(shell sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
 
-CRYPTEX_IDENTIFIER ?= com.research.zsh
+CRYPTEX_IDENTIFIER ?= codes.rambo.research.zsh
 CRYPTEX_ROOT ?= $(CURDIR)/zsh-cryptex.root
 SRD_REPOSITORY ?= $(abspath $(CURDIR)/../security-research-device)
 PATH_SRDTOOL := $(shell command -v srdtool 2>/dev/null)
