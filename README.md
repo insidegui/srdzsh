@@ -60,6 +60,15 @@ cryptex tool such as the SRD example's patched dropbear.  The bundled global
 randomized cryptex mount.  If the cryptex is visible through an absolute
 overlay path, zsh also works with its compiled `/usr/share/zsh` paths.
 
+At startup, zsh also discovers every directory below
+`/private/var/run/com.apple.security.cryptexd/mnt` and adds existing
+`usr/local/bin`, `usr/bin`, `bin`, `usr/local/sbin`, `usr/sbin`, and `sbin`
+directories from each mounted cryptex to `PATH`.  The current cryptex comes
+first, the inherited system path stays next, and other cryptexes are appended
+in lexical mount-directory order.  This makes their tools discoverable without
+letting an unrelated cryptex override system commands. Start a new shell after
+installing or removing a cryptex to refresh the discovered paths.
+
 The `zsh/zftp` module is not included because it depends on the obsolete
 `<arpa/telnet.h>` header, which is absent from the iPhoneOS SDK.  Modern
 `zsh/net/tcp` and `zsh/net/socket` support is included.

@@ -2,21 +2,49 @@
 #
 # CRYPTEX_MOUNT_PATH is supplied by the cryptex runtime (and propagated by
 # the cryptex-aware dropbear example in Apple's SRD repository).
-if [[ -n ${CRYPTEX_MOUNT_PATH:-} ]]; then
-	typeset -aU path fpath
-	path=(
-		"$CRYPTEX_MOUNT_PATH/usr/local/bin"
-		"$CRYPTEX_MOUNT_PATH/usr/bin"
-		"$CRYPTEX_MOUNT_PATH/bin"
-		$path
-	)
-	fpath=(
-		"$CRYPTEX_MOUNT_PATH/usr/share/zsh/5.9.2/functions"
-		"$CRYPTEX_MOUNT_PATH/usr/share/zsh/site-functions"
-		$fpath
-	)
-	if [[ -d "$CRYPTEX_MOUNT_PATH/usr/share/terminfo" ]]; then
-		export TERMINFO="$CRYPTEX_MOUNT_PATH/usr/share/terminfo"
+_srd_configure_cryptex_paths() {
+	emulate -L zsh
+	setopt null_glob
+
+	local mount_root=${SRD_CRYPTEX_MOUNT_ROOT:-/private/var/run/com.apple.security.cryptexd/mnt}
+	local current_mount=${CRYPTEX_MOUNT_PATH:-}
+	local cryptex relative directory
+	local -a current_paths other_paths
+	typeset -gaU path fpath
+	mount_root=${mount_root%/}
+	current_mount=${current_mount%/}
+
+	# Give tools and zsh resources from this cryptex highest priority.
+	if [[ -n $current_mount ]]; then
+		for relative in usr/local/bin usr/bin bin usr/local/sbin usr/sbin sbin; do
+			directory=$current_mount/$relative
+			[[ -d $directory ]] && current_paths+=($directory)
+		done
+
+		fpath=(
+			"$current_mount/usr/share/zsh/5.9.2/functions"
+			"$current_mount/usr/share/zsh/site-functions"
+			"${fpath[@]}"
+		)
+
+		if [[ -d $current_mount/usr/share/terminfo ]]; then
+			export TERMINFO=$current_mount/usr/share/terminfo
+		fi
 	fi
+
+	# Discover tools supplied by every other currently mounted cryptex. Keep
+	# these after the inherited PATH so they cannot shadow system commands.
+	for cryptex in "$mount_root"/*(N/); do
+		[[ $cryptex == $current_mount ]] && continue
+		for relative in usr/local/bin usr/bin bin usr/local/sbin usr/sbin sbin; do
+			directory=$cryptex/$relative
+			[[ -d $directory ]] && other_paths+=($directory)
+		done
+	done
+
+	path=("${current_paths[@]}" "${path[@]}" "${other_paths[@]}")
 	export PATH
-fi
+}
+
+_srd_configure_cryptex_paths
+unfunction _srd_configure_cryptex_paths

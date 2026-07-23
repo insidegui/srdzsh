@@ -178,6 +178,7 @@ check: $(CRYPTEX_STAMP)
 	trap 'rm -rf "$$smoke_dir"' 0 1 2 15; \
 	HOME="$$smoke_dir" TERM=xterm-256color /bin/zsh -dfi \
 		"$(CURDIR)/tests/smoke.zsh" "$(CURDIR)/config/zshrc" </dev/null
+	@/bin/zsh "$(CURDIR)/tests/cryptex-paths.zsh" "$(CURDIR)/config/zshenv"
 	@echo "Verified $(ARCH) zsh $(ZSH_VERSION) cryptex root"
 
 install: check
