@@ -14,8 +14,8 @@ fixed cryptex mount path.
 
 - macOS with Xcode and the iPhoneOS SDK
 - `make`, `curl`, `patch`, and the standard macOS command-line tools
-- Apple's `srdtool` (the default path is
-  `../security-research-device/bin/srdtool`)
+- Apple's `srdtool` in `PATH`. If it is not in `PATH`, the build falls back to
+  `../security-research-device/bin/srdtool`.
 
 ## Build and verify
 

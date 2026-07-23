@@ -15,7 +15,8 @@ JOBS ?= $(shell sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
 CRYPTEX_IDENTIFIER ?= com.research.zsh
 CRYPTEX_ROOT ?= $(CURDIR)/zsh-cryptex.root
 SRD_REPOSITORY ?= $(abspath $(CURDIR)/../security-research-device)
-SRDTOOL ?= $(SRD_REPOSITORY)/bin/srdtool
+PATH_SRDTOOL := $(shell command -v srdtool 2>/dev/null)
+SRDTOOL ?= $(if $(PATH_SRDTOOL),$(PATH_SRDTOOL),$(SRD_REPOSITORY)/bin/srdtool)
 SRDTOOL_INSTALL_FLAGS ?= --persist
 
 BUILD_ROOT := $(CURDIR)/build
@@ -180,9 +181,9 @@ check: $(CRYPTEX_STAMP)
 	@echo "Verified $(ARCH) zsh $(ZSH_VERSION) cryptex root"
 
 install: check
-	@test -x "$(SRDTOOL)" || { \
+	@command -v "$(SRDTOOL)" >/dev/null 2>&1 || { \
 		echo "srdtool not found or not executable: $(SRDTOOL)" >&2; \
-		echo "Set SRDTOOL=/path/to/srdtool and try again." >&2; \
+		echo "Add srdtool to PATH or set SRDTOOL=/path/to/srdtool." >&2; \
 		exit 1; \
 	}
 	@"$(SRDTOOL)" cryptex install $(SRDTOOL_INSTALL_FLAGS) \
