@@ -27,7 +27,9 @@ make check
 The result is `zsh-cryptex.root/`.  The cryptex includes the complete upstream
 completion function set, common compiled terminfo entries, and small global
 startup files that enable persistent history, completion, and reliable
-terminal key bindings.
+terminal key bindings. Completion initialization trusts this signed, read-only
+function tree explicitly because cryptex files can retain build-host ownership
+that `compaudit` cannot meaningfully validate on the SRD.
 
 The default target is arm64e with an iOS 15.0 deployment target.  Both are
 overridable:

@@ -1,3 +1,17 @@
+mock_fpath=$HOME/mock-completion-functions
+mkdir -p $mock_fpath
+print -rl -- \
+	'compaudit() {' \
+	'  if [[ ${_i_fail:-ask} == use ]]; then' \
+	'    return 0' \
+	'  fi' \
+	"  _i_q='directories and files'" \
+	'  _i_wdirs=($fpath[1])' \
+	'  return 1' \
+	'}' \
+	'compaudit "$@"' > $mock_fpath/compaudit
+
+fpath=($mock_fpath $2)
 source "$1"
 
 [[ $HISTFILE == "$HOME/.zsh_history" ]] || {

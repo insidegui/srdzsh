@@ -29,6 +29,14 @@ bindkey -e
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
-# The full upstream completion function set is installed in the cryptex.
+# The full upstream completion function set is installed in the signed,
+# read-only cryptex. Its files may retain a build-host UID that has no matching
+# account on the SRD, which makes compaudit reject the directory even though
+# it cannot be modified on-device. Use the packaged functions without that
+# ownership check so compinit does not remove its own compdump function.
 autoload -Uz compinit
-compinit -d "${ZDOTDIR:-${HOME:-/tmp}}/.zcompdump"
+if [[ -n ${CRYPTEX_MOUNT_PATH:-} ]]; then
+	compinit -u -d "${ZDOTDIR:-${HOME:-/tmp}}/.zcompdump"
+else
+	compinit -d "${ZDOTDIR:-${HOME:-/tmp}}/.zcompdump"
+fi

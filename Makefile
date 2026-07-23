@@ -176,8 +176,11 @@ check: $(CRYPTEX_STAMP)
 	@test -n "$$(find "$(CRYPTEX_ROOT)/usr/share/terminfo" -type f -name xterm-256color -print -quit)"
 	@smoke_dir="$$(mktemp -d "$${TMPDIR:-/tmp}/srdzsh-smoke.XXXXXX")"; \
 	trap 'rm -rf "$$smoke_dir"' 0 1 2 15; \
-	HOME="$$smoke_dir" TERM=xterm-256color /bin/zsh -dfi \
-		"$(CURDIR)/tests/smoke.zsh" "$(CURDIR)/config/zshrc" </dev/null
+	HOME="$$smoke_dir" TERM=xterm-256color \
+	CRYPTEX_MOUNT_PATH="$(CRYPTEX_ROOT)" /bin/zsh -dfi \
+		"$(CURDIR)/tests/smoke.zsh" \
+		"$(CURDIR)/config/zshrc" \
+		"$(CRYPTEX_ROOT)/usr/share/zsh/$(ZSH_VERSION)/functions" </dev/null
 	@/bin/zsh "$(CURDIR)/tests/cryptex-paths.zsh" "$(CURDIR)/config/zshenv"
 	@echo "Verified $(ARCH) zsh $(ZSH_VERSION) cryptex root"
 
