@@ -31,11 +31,11 @@ terminal key bindings. Completion initialization trusts this signed, read-only
 function tree explicitly because cryptex files can retain build-host ownership
 that `compaudit` cannot meaningfully validate on the SRD.
 
-The default target is arm64e with an iOS 15.0 deployment target.  Both are
+The default target is arm64e with an iOS 26.0 deployment target.  Both are
 overridable:
 
 ```sh
-make ARCH=arm64e IOS_MIN_VERSION=17.0
+make ARCH=arm64e IOS_MIN_VERSION=27.0
 ```
 
 ## Install

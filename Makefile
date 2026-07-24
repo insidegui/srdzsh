@@ -7,7 +7,7 @@ ZSH_SHA256 := 36fa734374b44783582cec09bcd67822e2f992c779ec1624ab5596df078d2f81
 ZSH_URL := https://www.zsh.org/pub/zsh-$(ZSH_VERSION).tar.xz
 
 ARCH ?= arm64e
-IOS_MIN_VERSION ?= 15.0
+IOS_MIN_VERSION ?= 26.0
 SDK ?= iphoneos
 HOST_TRIPLE ?= arm64e-apple-darwin
 JOBS ?= $(shell sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
