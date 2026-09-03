@@ -3,12 +3,16 @@
 This project cross-compiles zsh 5.9.2 for arm64e iOS and assembles a root
 directory suitable for `srdtool cryptex install`.
 
+On the SRD, the resulting shell automatically adds executable directories from
+every mounted cryptex to `PATH`, allowing commands supplied by any cryptex to
+be run by name. Its bundled startup configuration also persists interactive
+command history across shell sessions.
+
 The build pins the official zsh archive by SHA-256, grafts the ncurses headers
 that Apple ships in the macOS SDK but omits from the public iPhoneOS SDK, and
 links supported zsh modules statically into one ad-hoc-signed executable.
-Static linking is intentional: ZLE, completion, key maps, terminfo, PTYs, and
-the other standard modules do not depend on unsigned loadable bundles or a
-fixed cryptex mount path.
+Static linking is used for ZLE, completion, key maps, terminfo, PTYs, and
+the other standard modules to prevent issues loading unsigned loadable bundles from the random cryptex mount path.
 
 ## Requirements
 
@@ -38,6 +42,7 @@ overridable:
 make ARCH=arm64e IOS_MIN_VERSION=27.0
 ```
 
+I’ve only tested on iOS 26.6 and iOS 27 beta.
 ## Install
 
 Configure `srdtool` for the device first, then run:
@@ -74,3 +79,17 @@ installing or removing a cryptex to refresh the discovered paths.
 The `zsh/zftp` module is not included because it depends on the obsolete
 `<arpa/telnet.h>` header, which is absent from the iPhoneOS SDK.  Modern
 `zsh/net/tcp` and `zsh/net/socket` support is included.
+
+## SRD-specific patches
+
+- `0001-srd-static-modules.patch` statically links modules that upstream zsh
+  normally builds as loadable bundles. This keeps support for curses, regular
+  expressions, PTYs, sockets, TCP, filesystem operations, profiling, and the
+  other patched modules available when unsigned dynamic modules cannot be
+  loaded from a cryptex.
+- `0002-cryptex-resource-paths.patch` prefixes zsh's compiled global startup-file
+  paths with `CRYPTEX_MOUNT_PATH`. This lets `zshenv`, `zprofile`, `zshrc`,
+  `zlogin`, and `zlogout` load from a randomized cryptex mount while leaving
+  user startup files under `HOME` or `ZDOTDIR` unchanged. Loading the packaged
+  `zshenv` also enables the cryptex `PATH`, completion, and terminfo setup
+  described above.
