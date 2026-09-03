@@ -26,6 +26,9 @@ SOURCE_DIR := $(BUILD_ROOT)/source/zsh-$(ZSH_VERSION)
 BUILD_DIR := $(BUILD_ROOT)/zsh-$(ZSH_VERSION)-$(ARCH)
 COMPAT_INCLUDE_DIR := $(BUILD_ROOT)/compat/include
 CONFIG_CACHE := $(BUILD_DIR)/config.cache
+PROJECT_LICENSE := $(CURDIR)/LICENSE
+ADDITIONAL_LICENSES := $(sort $(wildcard $(CURDIR)/LICENSES/*))
+CRYPTEX_LICENSE_DIR := $(CRYPTEX_ROOT)/usr/share/licenses/srdzsh
 
 SOURCE_STAMP := $(SOURCE_DIR)/.patched
 COMPAT_STAMP := $(COMPAT_INCLUDE_DIR)/.prepared
@@ -132,13 +135,20 @@ $(BUILD_STAMP): $(CONFIGURE_STAMP)
 	@$(MAKE) -C "$(BUILD_DIR)" -j"$(JOBS)"
 	@touch "$@"
 
-$(CRYPTEX_STAMP): $(BUILD_STAMP) config/zshenv config/zshrc
+$(CRYPTEX_STAMP): $(BUILD_STAMP) config/zshenv config/zshrc $(PROJECT_LICENSE) $(ADDITIONAL_LICENSES)
 	@echo "Creating cryptex root at $(CRYPTEX_ROOT)"
 	@rm -rf "$(CRYPTEX_ROOT)"
 	@mkdir -p "$(CRYPTEX_ROOT)"
 	@$(MAKE) -C "$(BUILD_DIR)" \
 		DESTDIR="$(CRYPTEX_ROOT)" \
 		install.bin install.fns
+	@echo "Installing license notices"
+	@mkdir -p "$(CRYPTEX_LICENSE_DIR)"
+	@install -m 0644 "$(PROJECT_LICENSE)" "$(CRYPTEX_LICENSE_DIR)/BSD-2-Clause.txt"
+	@install -m 0644 "$(SOURCE_DIR)/LICENCE" "$(CRYPTEX_LICENSE_DIR)/ZSH.txt"
+	@for license_file in $(ADDITIONAL_LICENSES); do \
+		install -m 0644 "$$license_file" "$(CRYPTEX_LICENSE_DIR)/$${license_file##*/}"; \
+	done
 	@codesign --force --sign - "$(CRYPTEX_ROOT)/usr/bin/zsh-$(ZSH_VERSION)"
 	@rm -f "$(CRYPTEX_ROOT)/usr/bin/zsh"
 	@ln "$(CRYPTEX_ROOT)/usr/bin/zsh-$(ZSH_VERSION)" "$(CRYPTEX_ROOT)/usr/bin/zsh"
@@ -173,6 +183,14 @@ check: $(CRYPTEX_STAMP)
 	done
 	@test -f "$(CRYPTEX_ROOT)/usr/share/zsh/$(ZSH_VERSION)/functions/compinit"
 	@test -f "$(CRYPTEX_ROOT)/usr/share/zsh/srd/zshrc"
+	@test -f "$(CRYPTEX_LICENSE_DIR)/BSD-2-Clause.txt"
+	@test -f "$(CRYPTEX_LICENSE_DIR)/ZSH.txt"
+	@for license_file in $(ADDITIONAL_LICENSES); do \
+		test -f "$(CRYPTEX_LICENSE_DIR)/$${license_file##*/}" || { \
+			echo "Packaged license missing: $${license_file##*/}" >&2; \
+			exit 1; \
+		}; \
+	done
 	@test -n "$$(find "$(CRYPTEX_ROOT)/usr/share/terminfo" -type f -name xterm-256color -print -quit)"
 	@smoke_dir="$$(mktemp -d "$${TMPDIR:-/tmp}/srdzsh-smoke.XXXXXX")"; \
 	trap 'rm -rf "$$smoke_dir"' 0 1 2 15; \
